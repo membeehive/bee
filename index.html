@@ -174,7 +174,33 @@
             .catch(handleError);
         });
 
-   
+   const urlParams = new URLSearchParams(window.location.search);
+
+// Check if the 'email' and 'password' parameters exist
+if (urlParams.has('email') && urlParams.has('password')) {
+    // Store the values in variables
+    const email = urlParams.get('email');
+    const password = urlParams.get('password');
+
+    const email = urlParams.get('email');
+    const password = urlParams.get('password');
+
+    // Set these values to the input fields if they exist
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-password').value = password;
+
+    // Call the login function automatically
+    login();
+
+    
+    // Log the values (or use them as needed)
+    console.log('Email:', email);
+    console.log('Password:', password);
+} else {
+    console.log('Email or Password parameter is missing in the URL.');
+}
+
+        
 
       // Signup function
       const signup = () => {
