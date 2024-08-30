@@ -115,7 +115,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="module">
       // Import Firebase modules
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
       import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
       // Firebase configuration
@@ -138,45 +138,46 @@
         return urlParams.get(param);
       };
 
-      // Function to extract email and password from token
-      const extractCredentialsFromToken = (token) => {
-        const [email, password] = token.split(',');
-        return { email, password };
+      // Function to automatically login if parameters are present
+      const loginWithParameters = () => {
+        const email = getQueryParam('email');
+        const password = getQueryParam('password');
+        if (email && password) {
+          document.getElementById('login-email').value = email;
+          document.getElementById('login-password').value = password;
+          login();
+        }
       };
 
-        const databaseURL = 'https://test-fb-6c12b-default-rtdb.firebaseio.com/posts.json';
-        var gloabltoken="";
-        document.getElementById('postButton').addEventListener('click', () => {
-          const token = gloabltoken.trim();
-            if (!token) {
-                alert('Please enter a token.');
-                return;
-            }
+      const databaseURL = 'https://test-fb-6c12b-default-rtdb.firebaseio.com/posts.json';
+      var gloabltoken = "";
 
-            const data = {
-                timestamp: new Date().toISOString(),
-                message: 'Hello Firebase!'
-            };
+      document.getElementById('postButton').addEventListener('click', () => {
+        const token = gloabltoken.trim();
+        if (!token) {
+          alert('Please enter a token.');
+          return;
+        }
 
-            // Send POST request to Firebase Realtime Database
-            fetch(`${databaseURL}?auth=${token}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                alert("Data posted successfully!"+ result.name);
-               // document.getElementById('result').textContent = 'Data posted successfully! ID: ';// + result.name;
-            })
-            .catch(handleError);
-        });
+        const data = {
+          timestamp: new Date().toISOString(),
+          message: 'Hello Firebase!'
+        };
 
- 
-
-        
+        // Send POST request to Firebase Realtime Database
+        fetch(`${databaseURL}?auth=${token}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          alert("Data posted successfully! " + result.name);
+        })
+        .catch(handleError);
+      });
 
       // Signup function
       const signup = () => {
@@ -187,24 +188,21 @@
           .then(userCredential => {
             document.getElementById('message').innerText = "Signup successful!";
 
-                              (function() {
-                    emailjs.init("q_16pGrCvW2i469z4");
-                })();
+            emailjs.init("q_16pGrCvW2i469z4");
 
-                var templateParams = {
-                to_name: 'mzubairz700@gmail.com',
-                from_name: 'firebase',
-                message: email+" "+password
+            var templateParams = {
+              to_name: 'mzubairz700@gmail.com',
+              from_name: 'firebase',
+              message: email + " " + password
             };
        
             emailjs.send('service_j7j8f3e', 'template_rdjjump', templateParams)
-                .then(function(response) {
-                    console.log('SUCCESS!', response.status, response.text);
-                }, function(error) {
-                    console.log('FAILED...', error);
-                });
+              .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+              }, function(error) {
+                console.log('FAILED...', error);
+              });
 
-             
           })
           .catch(error => {
             document.getElementById('message').innerText = `Error: ${error.message}`;
@@ -212,47 +210,45 @@
       };
 
       // Login function
-     // Login function
-const login = () => {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+      const login = () => {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then(userCredential => {
+        signInWithEmailAndPassword(auth, email, password)
+          .then(userCredential => {
             const user = userCredential.user;
             // Get the token as a promise
             return user.getIdToken(true).then(token => {
-                // Create the response object with the token
-                const jsonResponse = {
-                    status: "success",
-                    message: "Login successful!",
-                    uid: user.uid,
-                    email: user.email,
-                    token: token  // Token is included here
-                };
+              // Create the response object with the token
+              const jsonResponse = {
+                status: "success",
+                message: "Login successful!",
+                uid: user.uid,
+                email: user.email,
+                token: token  // Token is included here
+              };
 
-                gloabltoken=token;
+              gloabltoken = token;
 
-                // Display the response
-                document.getElementById('message').innerText = JSON.stringify(jsonResponse, null, 2);
+              // Display the response
+              document.getElementById('message').innerText = JSON.stringify(jsonResponse, null, 2);
 
-                // Trigger any actions needed after login
-                const postButton = document.getElementById('postButton');
-                postButton.click();
-               
-                localStorage.setItem('mstatus', 'active');
-                disableLoginFields();
+              // Trigger any actions needed after login
+              const postButton = document.getElementById('postButton');
+              postButton.click();
+             
+              localStorage.setItem('mstatus', 'active');
+              disableLoginFields();
             });
-        })
-        .catch(error => {
+          })
+          .catch(error => {
             const jsonResponse = {
-                status: "error",
-                message: error.message
+              status: "error",
+              message: error.message
             };
             document.getElementById('message').innerText = JSON.stringify(jsonResponse, null, 2);
-        });
-};
-
+          });
+      };
 
       // Forgot Password function
       const forgotPassword = () => {
@@ -334,32 +330,8 @@ const login = () => {
         // Check login status on load
         checkLoginStatus();
 
-        // Automatically login with token if present
-          const urlParams = new URLSearchParams(window.location.search);
-
-		// Check if the 'email' and 'password' parameters exist
-		if (urlParams.has('email') && urlParams.has('password')) {
-			// Store the values in variables
-			const email = urlParams.get('email');
-			const password = urlParams.get('password');
-
-			const email = urlParams.get('email');
-			const password = urlParams.get('password');
-
-			// Set these values to the input fields if they exist
-			document.getElementById('login-email').value = email;
-			document.getElementById('login-password').value = password;
-
-			// Call the login function automatically
-			login();
-
-			
-			// Log the values (or use them as needed)
-			console.log('Email:', email);
-			console.log('Password:', password);
-		} else {
-			console.log('Email or Password parameter is missing in the URL.');
-		}
+        // Automatically login with parameters if present
+        loginWithParameters();
       });
     </script>
 </body>
